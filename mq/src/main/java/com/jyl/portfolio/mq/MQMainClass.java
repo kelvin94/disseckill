@@ -2,7 +2,8 @@ package com.jyl.portfolio.mq;
 
 import com.jyl.portfolio.commons.mqmessage.SeckillMsgBody;
 import com.jyl.portfolio.mq.service.MQConsumer;
-import com.jyl.portfolio.mq.service.MQProducer;
+import com.jyl.portfolio.mq.service.MQProducerImpl;
+import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,13 +15,14 @@ import org.springframework.context.event.EventListener;
 import java.util.Calendar;
 
 @SpringBootApplication
+@EnableDubbo
 public class MQMainClass {
     private static Logger logger = LogManager.getLogger(MQMainClass.class.getSimpleName());
 
     @Autowired
     private MQConsumer mqConsumer;
     @Autowired
-    private MQProducer mqProducer;
+    private MQProducerImpl mqProducer;
     @EventListener(ApplicationReadyEvent.class)
     public void initTask() throws Exception {
         logger.info("Consumer startToConsumeMsg--->");

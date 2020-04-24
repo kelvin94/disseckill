@@ -1,11 +1,13 @@
 package com.jyl.portfolio.mq.service;
 
 import com.google.gson.Gson;
+import com.jyl.portfolio.commons.api.mq.MQProducer;
 import com.jyl.portfolio.mq.config.MQChannelManager;
 import com.jyl.portfolio.mq.config.MQConfigBean;
 import com.jyl.portfolio.commons.mqmessage.SeckillMsgBody;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.MessageProperties;
+import org.apache.dubbo.config.annotation.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -14,9 +16,10 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
+@Service
 @Component
-public class MQProducer {
-    private static Logger logger = LogManager.getLogger(MQProducer.class.getSimpleName());
+public class MQProducerImpl implements MQProducer {
+    private static Logger logger = LogManager.getLogger(MQProducerImpl.class.getSimpleName());
 
 
     private final MQConfigBean mqConfigBean;
@@ -24,7 +27,7 @@ public class MQProducer {
     private final MQChannelManager mqChannelManager;
 //    private final JedisPool jedisPool;
 
-    public MQProducer(
+    public MQProducerImpl(
 //            SwagRepository repo,
             Gson gson,
             MQConfigBean mqConfigBean,
