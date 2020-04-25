@@ -1,12 +1,15 @@
 package com.jyl.portfolio.mq.service;
 
 import com.google.gson.Gson;
+import com.jyl.portfolio.commons.api.cache.RedisClient;
 import com.jyl.portfolio.commons.api.mq.MQProducer;
+import com.jyl.portfolio.commons.util.GeneralUtil;
 import com.jyl.portfolio.mq.config.MQChannelManager;
 import com.jyl.portfolio.mq.config.MQConfigBean;
 import com.jyl.portfolio.commons.mqmessage.SeckillMsgBody;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.MessageProperties;
+import org.apache.dubbo.config.annotation.Reference;
 import org.apache.dubbo.config.annotation.Service;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -21,7 +24,8 @@ import java.util.concurrent.TimeoutException;
 public class MQProducerImpl implements MQProducer {
     private static Logger logger = LogManager.getLogger(MQProducerImpl.class.getSimpleName());
 
-
+    @Reference
+    RedisClient rc;
     private final MQConfigBean mqConfigBean;
     private final Gson gson;
     private final MQChannelManager mqChannelManager;
@@ -60,14 +64,9 @@ public class MQProducerImpl implements MQProducer {
 
         if (isSentAcked) {
             // Broker successfully get the msg
-            // then call redis 做减库
-//            try (Jedis jedis = jedisPool.getResource()) {
-                logger.info("...[MQProducer]Consumer receive msg，put order into Redis...");
-//                jedis.set(GeneralUtil.getSeckillOrderRedisKey(body.getUserPhone(), body.getSeckillSwagId()),
-//                        body.getSeckillSwagId() + "@" + body.getUserPhone());
-//            }
-//            logger.info("...[MQProducer]Redis - 减库结束...");
-
+            // ### 用RedisClient.setOrder() update Redis with the order
+            rc.setOrder(GeneralUtil.getSeckillOrderRedisKey(body.getUserPhone(), body.getSeckillSwagId()),
+                        body.getSeckillSwagId() + "@" + body.getUserPhone());
         } else {
             // Broker somehow cannot get the msg
             // retry to publish the msg

@@ -1,6 +1,7 @@
 package com.jyl.portfolio.order.service;
 
 import com.google.gson.Gson;
+import com.jyl.portfolio.commons.api.cache.RedisClient;
 import com.jyl.portfolio.commons.api.mq.MQProducer;
 import com.jyl.portfolio.commons.apiParameter.SeckillParameter;
 import com.jyl.portfolio.mq.service.MQProducerImpl;
@@ -33,6 +34,8 @@ public class SeckillServiceImpl implements SeckillService {
     private final OrderRepository orderRepository;
     @Reference
     MQProducer mqProducer;
+    @Reference
+    RedisClient rc;
 //    private final JedisPool jedisPool;
 
     public SeckillServiceImpl(
@@ -76,26 +79,10 @@ public class SeckillServiceImpl implements SeckillService {
         /*
             Redis key for swag id: "url:" + seckillSwagId
          */
+        // check if url is already in cache; if yes, return it.
+        UrlExposer url_in_redis = rc.exportSeckillUrl(seckillSwagId);
+        if(url_in_redis != null) return url_in_redis;
 
-        // get jedis connection from connection pool
-//        Jedis jedis = null;
-        try {
-            logger.info("Export swag url from Redis--->");
-//            jedis = jedisPool.getResource();
-            // check if the key(swag id) is in redis, if exists, decompose the json convert it back to POJO
-//            if (jedis.exists(GeneralUtil.getUrlRedisKey(seckillSwagId))) {
-//                logger.info("Seckill product exists in Redis. Returning obj in redis-->");
-//                String redis_value = jedis.get(GeneralUtil.getUrlRedisKey(seckillSwagId));
-//                return gson.fromJson(redis_value, UrlExposer.class);
-//            }
-        } catch (Exception ex) {
-            logger.error(ex.getMessage());
-        } finally {
-            // return the jedis resource back to the resource pool
-            logger.info("closeing redis connection and return resource back to the resource pool");
-//            if (jedis != null)
-//                jedis.close();
-        }
 
 
         // not in the cache then continue with the normal postgres call and store the url in redis as a json
@@ -120,16 +107,10 @@ public class SeckillServiceImpl implements SeckillService {
                         swag.get().getSeckill_price());
 
                 String str_returnValue = gson.toJson(returnValue);
-                try {
-//                    jedis = jedisPool.getResource();
-//                    jedis.set(GeneralUtil.getUrlRedisKey(seckillSwagId), str_returnValue);
-                } catch (Exception ex) {
-                    logger.error(ex.getMessage());
-                } finally {
-                    // return the jedis resource back to the resource pool
-//                    if (jedis != null)
-//                        jedis.close();
-                }
+
+                // add the url to cache
+                rc.setSwagUrl(seckillSwagId, str_returnValue);
+
                 return returnValue;
             }
             return new UrlExposer(false, swag.get().getSeckillSwagId());
@@ -150,29 +131,12 @@ public class SeckillServiceImpl implements SeckillService {
         String md5Url = requestParam.getMd5Url();
 
         if (md5Url == null || !md5Url.equalsIgnoreCase(getMd5(seckillSwagId))) {
-            throw new SeckillException("seckill data is tampered. hashed url result is different.");
+            throw new SeckillException("seckill data is tampered. hashed url result is different. hased url: "+getMd5(seckillSwagId) );
         }
-//        Jedis jedis = null;
-        try {
-            // check if a SeckillOrder that contains the same phoneNumber and seckillSwagId existing in redis
-            // 如果已经存在就避免重复击杀
-            // 不存在就存入redis
-            String str_order = null;
-            try {
-//                jedis = jedisPool.getResource();
-//                logger.debug("key: " + GeneralUtil.getSeckillOrderRedisKey(userPhone, seckillSwagId));
-//                str_order = jedis.get(GeneralUtil.getSeckillOrderRedisKey(userPhone, seckillSwagId));
-            } catch (Exception e) {
-                logger.error("Exception thrown..." + e.getMessage());
-                e.printStackTrace();
-                throw e;
-            } finally {
-//                if (jedis != null) {
-//                    logger.info("Redis conn close");
-//                    jedis.close();
-//                }
-            }
 
+        // check if the user has placed the order.
+        String str_order = rc.getOrder(userPhone, seckillSwagId);
+        try{
             if (str_order != null) {
                 logger.info("Seckill order exists in redis. 重复购买。");
                 throw new RepeatkillException("Your order already placed.");
@@ -188,7 +152,7 @@ public class SeckillServiceImpl implements SeckillService {
                 // 立即返回给客户端，说明秒杀成功了
                 return new SeckillExecution(seckillSwagId, 1,
                         Objects.requireNonNull(SeckillStateEnum.stateOf(1)).getStateInfo());
-//                }
+
 
             }
 
@@ -217,35 +181,8 @@ public class SeckillServiceImpl implements SeckillService {
         BigDecimal seckill_price = null;
         long dealStartTs = 0;
         long dealEndTs = 0;
-//        try (Jedis jedis = jedisPool.getResource()) {
-//            // Non-repeated purchase - Update Redis Url with new stockCount
-//            String seckill_url = jedis.get(GeneralUtil.getUrlRedisKey(seckillSwagId));
-//            UrlExposer url = gson.fromJson(seckill_url, UrlExposer.class);
-//            if (url != null && url.getStockCount() > 0) {
-//                remainingStockCount = url.getStockCount();
-//                remainingStockCount--;
-//                url.setStockCount(remainingStockCount);
-//                if (url.getStockCount() <= 0) {
-//                    throw new SeckillCloseException("Sold out. 卖完啦洗洗睡吧.");
-//                }
-//                dealStartTs = url.getDealStart();
-//                dealEndTs = url.getDealEnd();
-//                seckill_price = url.getSeckill_price();
-//                Date currentSysTime = new Date();
-//                if (currentSysTime.getTime() > dealStartTs && currentSysTime.getTime() < dealEndTs) {
-//                    // Redis: update stockCount...
-//                    logger.info("updating redis stockCount...");
-//                    jedis.set(GeneralUtil.getUrlRedisKey(seckillSwagId), gson.toJson(url));
-//                    jedis.set(GeneralUtil.getSeckillOrderRedisKey(userPhone, seckillSwagId), "sfasfdsa");// "1" as
-//                    // value to indicate this person has placed an order of this product
-//                    // If sales is still on-going(here is only double check incase FE exposes the api endpoint for
-//                    // seckill_execute method)
-//                    //  create a new msg and send to a service to update Postgres stockCount and persist the
-//                    //  seckillOrder record.
-//                    logger.info("Redis part done... now call postgres to insert order");
-//                }
-//            }
-//        }
+        // update stock count in cache
+        rc.updateStockCount(seckillSwagId, userPhone);
 
         // save the order to Postgres
 //        updateInventory(seckillSwagId, userPhone, remainingStockCount, seckill_price);
