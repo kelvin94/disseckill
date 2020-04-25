@@ -11,8 +11,9 @@ public class CacheMain {
         private static Logger logger = LogManager.getLogger(CacheMain.class.getSimpleName());
 
         public static void main(String[] args) {
-            logger.info("[Cache] running...");
+
             SpringApplication.run(CacheMain.class);
+            logger.info("[Cache] running...");
         }
 
 }
