@@ -7,6 +7,14 @@ import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 
+/**
+ * Purpose：秒杀商品的结果
+ * params:
+ *      id
+ *      state of the order
+ *      phone number,
+ *      order object contains order price
+ */
 @Data
 @NoArgsConstructor
 public class SeckillExecution implements Serializable {

@@ -18,5 +18,4 @@ public class SeckillOrderPrimaryKey implements Serializable {
     private long seckillSwagId;
     @NotNull
     private long userPhone; //秒杀用户的手机号
-
 }

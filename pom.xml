@@ -14,10 +14,6 @@
     <name>disseckill</name>
     <packaging>pom</packaging>
     <modules>
-<!--        <module>seckill-authApi</module>-->
-<!--        <module>dissecKill-commons</module>-->
-<!--        <module>secKill-order</module>-->
-<!--        <module>seckill-cache</module>-->
         <module>mq</module>
         <module>commons</module>
         <module>order</module>
@@ -48,6 +44,12 @@
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo-spring-boot-starter</artifactId>
             <version>${springboot-dubbo-version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework.boot</groupId>
+                    <artifactId>spring-boot-starter-logging</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <!-- zookeeper -->

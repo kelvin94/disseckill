@@ -30,7 +30,7 @@ public class RedisClientImpl implements RedisClient {
         Jedis jedis = null;
 
          try {
-             System.out.println("Export swag url from Redis--->");
+             logger.info("Export swag url from Redis--->");
             jedis = jedisPool.getResource();
 //             check if the key(swag id) is in redis, if exists, decompose the json convert it back to POJO
             if (jedis.exists(GeneralUtil.getUrlRedisKey(seckillSwagId))) {

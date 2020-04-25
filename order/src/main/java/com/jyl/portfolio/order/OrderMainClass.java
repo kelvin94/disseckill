@@ -2,6 +2,8 @@ package com.jyl.portfolio.order;
 
 import com.jyl.portfolio.order.repository.SwagRepository;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -14,6 +16,8 @@ import org.springframework.core.annotation.Order;
 @EnableDubbo
 @ComponentScan( basePackages = {"com.jyl.portfolio.commons", "com.jyl.portfolio.order"})
 public class OrderMainClass {
+    private static Logger logger = LogManager.getLogger(OrderMainClass.class.getSimpleName());
+
     public static void main(String[] args) {
         SpringApplication.run(OrderMainClass.class);
     }
@@ -21,7 +25,9 @@ public class OrderMainClass {
     private SwagRepository repo;
     @EventListener(ApplicationReadyEvent.class)
     public void init(){
+        logger.info("[Order] running...");
+
         repo.findAll();
-        System.out.println(repo.findById(1L));
+        logger.info(repo.findById(1L));
     }
 }

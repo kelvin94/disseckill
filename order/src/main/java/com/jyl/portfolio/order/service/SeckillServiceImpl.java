@@ -34,17 +34,14 @@ public class SeckillServiceImpl implements SeckillService {
     MQProducer mqProducer;
     @Reference
     RedisClient rc;
-//    private final JedisPool jedisPool;
 
     public SeckillServiceImpl(
             SwagRepository swagRepository,
             OrderRepository orderRepository,
-//            JedisPool jedisPool,
             Gson gson
     ) {
         this.swagRepository = swagRepository;
         this.orderRepository = orderRepository;
-//        this.jedisPool = jedisPool;
         this.gson = gson;
     }
 
@@ -55,12 +52,12 @@ public class SeckillServiceImpl implements SeckillService {
         body.setUserPhone(123456789L);
         body.setSeckillSwagId(3L);
         try {
-            System.out.println("sending msg to queue");
+            logger.info("sending msg to queue");
             mqProducer.jianku_send(body);
         } catch (IOException e) {
             e.printStackTrace();
         }
-        System.out.println("done msg to queue");
+        logger.info("done msg to queue");
 
         return swagRepository.findAll();
     }

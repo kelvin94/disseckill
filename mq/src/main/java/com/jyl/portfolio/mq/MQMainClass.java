@@ -25,8 +25,10 @@ public class MQMainClass {
     private MQProducerImpl mqProducer;
     @EventListener(ApplicationReadyEvent.class)
     public void initTask() throws Exception {
+        logger.info("[MQ] running...");
+
         logger.info("Consumer startToConsumeMsg--->");
-        System.out.println("Consumer startToConsumeMsg--->");
+        logger.info("Consumer startToConsumeMsg--->");
         mqConsumer.receiveMsgFromJiankuQueue();
         SeckillMsgBody body = new SeckillMsgBody();
         body.setMsgId(Calendar.getInstance());

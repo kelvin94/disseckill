@@ -29,7 +29,7 @@ public class Controller {
 
     @GetMapping(value="/order")
     public String testing() {
-        System.out.println("controller picks up the request");
+        logger.info("controller picks up the request");
 //        Util.testing();
         return service.exportSeckillUrl(1L).toString();
     }
