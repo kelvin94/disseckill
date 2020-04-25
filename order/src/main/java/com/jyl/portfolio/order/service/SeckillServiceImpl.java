@@ -4,7 +4,6 @@ import com.google.gson.Gson;
 import com.jyl.portfolio.commons.api.cache.RedisClient;
 import com.jyl.portfolio.commons.api.mq.MQProducer;
 import com.jyl.portfolio.commons.apiParameter.SeckillParameter;
-import com.jyl.portfolio.mq.service.MQProducerImpl;
 import com.jyl.portfolio.order.dto.SeckillExecution;
 import com.jyl.portfolio.commons.dto.UrlExposer;
 import com.jyl.portfolio.commons.exceptions.RepeatkillException;
@@ -21,7 +20,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
@@ -129,7 +127,7 @@ public class SeckillServiceImpl implements SeckillService {
         Long seckillSwagId = requestParam.getSeckillSwagId();
         Long userPhone = requestParam.getUserPhone();
         String md5Url = requestParam.getMd5Url();
-
+        BigDecimal dealPrice = requestParam.getDealPrice();
         if (md5Url == null || !md5Url.equalsIgnoreCase(getMd5(seckillSwagId))) {
             throw new SeckillException("seckill data is tampered. hashed url result is different. hased url: "+getMd5(seckillSwagId) );
         }
@@ -142,7 +140,7 @@ public class SeckillServiceImpl implements SeckillService {
                 throw new RepeatkillException("Your order already placed.");
             } else {
 
-                long threadId = Thread.currentThread().getId();
+
                 /*
                     2019-Oct-26 Update: encapsulate swagID + userPhone as a msg, send the msg to the jianku_exchange
                  */
@@ -150,10 +148,9 @@ public class SeckillServiceImpl implements SeckillService {
                 // // 进入待秒杀队列，进行后续串行操作
                 mqProducer.jianku_send(msg);
                 // 立即返回给客户端，说明秒杀成功了
+                decrementStockCountInRedis(msg,  dealPrice);
                 return new SeckillExecution(seckillSwagId, 1,
                         Objects.requireNonNull(SeckillStateEnum.stateOf(1)).getStateInfo());
-
-
             }
 
         } catch (RepeatkillException ex) {
@@ -169,31 +166,36 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     // Purpose: decrement stockcount in redis
-    @Transactional
-    public void handleInRedis(String mqMessage) {
+//    @Transactional
+    public void decrementStockCountInRedis(SeckillMsgBody body, BigDecimal dealPrice) {
 
-        SeckillMsgBody body = gson.fromJson(mqMessage, SeckillMsgBody.class);
+
         Long seckillSwagId = body.getSeckillSwagId();
         Long userPhone = body.getUserPhone();
+
         logger.info("decrementRedisPGStockCountAndSaveOrder seckillSwagID: " + seckillSwagId + " userPhone: " + userPhone);
 
         int remainingStockCount = 0;
-        BigDecimal seckill_price = null;
         long dealStartTs = 0;
         long dealEndTs = 0;
         // update stock count in cache
         rc.updateStockCount(seckillSwagId, userPhone);
 
         // save the order to Postgres
-//        updateInventory(seckillSwagId, userPhone, remainingStockCount, seckill_price);
+        decrementStockCountPostgres(seckillSwagId, userPhone, remainingStockCount, dealPrice);
     }
 
     // updateInventory only interacts to postgres
-    private void updateInventory(long seckillid, long userPhone, int remainStockCount, BigDecimal seckill_price) {
+    private void decrementStockCountPostgres(long seckillid, long userPhone, int remainStockCount, BigDecimal seckill_price) {
         logger.info("Updating inventory...");
         swagRepository.updateStockCount(remainStockCount, seckillid);
         logger.info("Inserting order...");
         orderRepository.insertOder(seckillid, seckill_price, userPhone, 1); // state: 1 = 秒杀成功
+    }
+
+    public void clear() throws Exception {
+        rc.clear();
+        orderRepository.deleteAll();
     }
 }
 

@@ -14,4 +14,6 @@ public interface RedisClient {
         public void setOrder(String seckillOrderRedisKey, String seckillOrderRedisValue);
 
         public void updateStockCount(Long seckillSwagId, Long userPhone);
+
+        public void clear();
 }

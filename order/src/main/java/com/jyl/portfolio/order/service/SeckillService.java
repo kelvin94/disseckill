@@ -2,10 +2,12 @@ package com.jyl.portfolio.order.service;
 
 
 import com.jyl.portfolio.commons.apiParameter.SeckillParameter;
+import com.jyl.portfolio.commons.mqmessage.SeckillMsgBody;
 import com.jyl.portfolio.order.dto.SeckillExecution;
 import com.jyl.portfolio.commons.dto.UrlExposer;
 import com.jyl.portfolio.order.entity.SeckillSwag;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public interface SeckillService {
@@ -45,6 +47,12 @@ public interface SeckillService {
 
     /**
      * @param msg: RabbitMQ message, constructed by SeckillMsgBody class
+     * @param dealPrice
      */
-    void handleInRedis(String msg);
+    void decrementStockCountInRedis(SeckillMsgBody body, BigDecimal dealPrice);
+
+    /**
+     *
+     */
+    void clear() throws Exception ;
 }

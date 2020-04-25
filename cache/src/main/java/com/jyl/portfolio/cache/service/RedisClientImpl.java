@@ -133,4 +133,10 @@ public class RedisClientImpl implements RedisClient {
             }
         }
     }
+
+    public void clear() {
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.flushDB();
+        }
+    }
 }
