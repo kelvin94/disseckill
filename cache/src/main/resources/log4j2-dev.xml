@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+
+    <Appenders>
+        <RollingFile name="RollingFile"
+                     fileName="c:/wsl/seckill-cache-log/seckill-cache.log"
+                     filePattern="c:/wsl/seckill-cache-log/$${date:yyyy-MM}/seckill-%d{-dd-MMMM-yyyy}-%i.log">
+            <PatternLayout>
+                <pattern>%d %p %C{1.} [%t] %m%n</pattern>
+            </PatternLayout>
+            <Policies>
+                <!--https://stackify.com/log4j2-java/ explains how sizeBasedTriggeringPolicy and other policy works-->
+                <SizeBasedTriggeringPolicy
+                        size="10 MB"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <Loggers>
+        <!-- LOG everything at INFO level -->
+        <Root level="ALL">
+<!--            <AppenderRef ref="Console"/>-->
+            <AppenderRef ref="RollingFile"/>
+        </Root>
+
+    </Loggers>
+
+</Configuration>
