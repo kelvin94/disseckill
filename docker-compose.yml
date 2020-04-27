@@ -7,6 +7,14 @@ services:
       networks:
         - backend
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    networks:
+      - backend
+
   redis:
     image: redis:alpine
     ports:
@@ -25,8 +33,7 @@ services:
     image: jylkelvin/disseckill-cache
     ports:
       - "9095:9095"
-    environment:
-      - "SPRING_PROFILES_ACTIVE=dev"
+    command: ["/cache_start.sh"]
     volumes:
       - "/tmp/seckill-cache-log:/tmp/seckill-cache-log"
     networks:
@@ -35,13 +42,30 @@ services:
       - redis
       - zookeeper
 
-#    deploy:
-#      replicas: 2
-#      update_config:
-#        parallelism: 2
-#      restart_policy:
-#        condition: on-failure
+  mq:
+    image: jylkelvin/disseckill-mq
+    ports:
+      - "9090"
+    volumes:
+      - "/tmp/seckill-mq-log:/tmp/seckill-mq-log"
+    command: ["/mq_start.sh"]
+    networks:
+      - backend
+    depends_on:
+      - rabbitmq
 
+  order:
+    image: jylkelvin/disseckill-order
+    ports:
+      - "9091"
+    volumes:
+      - "/tmp/seckill-order-log:/tmp/seckill-order-log"
+    command: ["/order_start.sh"]
+    networks:
+      - backend
+    depends_on:
+      - mq
+      - cache
 networks:
   frontend:
   backend:

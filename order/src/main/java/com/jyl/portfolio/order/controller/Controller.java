@@ -35,6 +35,6 @@ public class Controller {
     public String testing() {
         logger.info("controller picks up the request");
 //        Util.testing();
-        return service.exportSeckillUrl(1L).toString();
+        return service.exportSeckillUrl(3L).toString();
     }
 }
