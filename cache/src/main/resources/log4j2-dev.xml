@@ -3,8 +3,8 @@
 
     <Appenders>
         <RollingFile name="RollingFile"
-                     fileName="c:/wsl/seckill-cache-log/seckill-cache.log"
-                     filePattern="c:/wsl/seckill-cache-log/$${date:yyyy-MM}/seckill-%d{-dd-MMMM-yyyy}-%i.log">
+                     fileName="/tmp/seckill-cache-log/seckill-cache.log"
+                     filePattern="/tmp/seckill-cache-log/$${date:yyyy-MM}/seckill-%d{-dd-MMMM-yyyy}-%i.log">
             <PatternLayout>
                 <pattern>%d %p %C{1.} [%t] %m%n</pattern>
             </PatternLayout>

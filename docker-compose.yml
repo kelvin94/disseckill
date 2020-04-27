@@ -1,0 +1,47 @@
+version: "3"
+services:
+  zookeeper:
+      image: zookeeper
+      ports:
+        - "2181"
+      networks:
+        - backend
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379"
+    networks:
+      - backend
+#    deploy:
+#      replicas: 2
+#      update_config:
+#        parallelism: 2
+#        delay: 10s
+#      restart_policy:
+#        condition: on-failure
+
+  cache:
+    image: jylkelvin/disseckill-cache
+    ports:
+      - "9095:9095"
+    environment:
+      - "SPRING_PROFILES_ACTIVE=dev"
+    volumes:
+      - "/tmp/seckill-cache-log:/tmp/seckill-cache-log"
+    networks:
+      - backend
+    depends_on:
+      - redis
+      - zookeeper
+
+#    deploy:
+#      replicas: 2
+#      update_config:
+#        parallelism: 2
+#      restart_policy:
+#        condition: on-failure
+
+networks:
+  frontend:
+  backend:
