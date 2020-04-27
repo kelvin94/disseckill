@@ -57,7 +57,7 @@ services:
   order:
     image: jylkelvin/disseckill-order
     ports:
-      - "9091"
+      - "8080:9091"
     volumes:
       - "/tmp/seckill-order-log:/tmp/seckill-order-log"
     command: ["/order_start.sh"]
