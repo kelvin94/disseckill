@@ -19,9 +19,22 @@ public class Controller {
     @Autowired
     private SeckillService service;
 
+    @GetMapping(value = "/swag")
+    public ResponseEntity findAllSwags() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(service.findAll_swags());
+    }
+
+    @GetMapping(value = "/order")
+    public ResponseEntity findAllOrders() {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(service.findAll_orders());
+    }
+
     @PostMapping(value = "/swag")
-    public String buyOffer(@Valid @RequestBody SeckillParameter param) throws Exception {
-        return service.executeSeckill(param).toString();
+    public ResponseEntity buyOffer(@Valid @RequestBody SeckillParameter param) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(service.executeSeckill(param));
     }
 
     @DeleteMapping(value = "/clear")
@@ -31,10 +44,9 @@ public class Controller {
             .body("Done");
     }
 
-    @GetMapping(value="/order")
-    public String testing() {
-        logger.info("controller picks up the request");
-//        Util.testing();
-        return service.exportSeckillUrl(3L).toString();
+    @GetMapping(value="/export/url/{swag_id}")
+    public ResponseEntity exportSeckillUrl(@PathVariable Long swag_id) {
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(service.exportSeckillUrl(swag_id));
     }
 }
