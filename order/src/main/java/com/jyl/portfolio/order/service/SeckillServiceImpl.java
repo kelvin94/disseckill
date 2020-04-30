@@ -63,17 +63,20 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public UrlExposer exportSeckillUrl(Long seckillSwagId) {
-        logger.info("Begin exportSeckillUrl...");
+        logger.info("Begin exportSeckillUrl...exporting swag_id: "+seckillSwagId);
         /*
             Redis key for swag id: "url:" + seckillSwagId
          */
         // check if url is already in cache; if yes, return it.
         UrlExposer url_in_redis = rc.exportSeckillUrl(seckillSwagId);
-        if(url_in_redis != null) return url_in_redis;
+        if(url_in_redis != null) {
+            logger.info("URL is loaded from redis");
+            return url_in_redis;
+        }
 
 
         // not in the cache then continue with the normal postgres call and store the url in redis as a json
-        logger.info("Generating url from DB.. seckillSwagId " + seckillSwagId);
+        logger.info("Generating url from DB.. seckillSwagId: " + seckillSwagId);
 
         Optional<SeckillSwag> swag = swagRepository.findBySeckillSwagId(seckillSwagId);
         if (swag.isPresent()) {
@@ -96,11 +99,12 @@ public class SeckillServiceImpl implements SeckillService {
 
                 String str_returnValue = gson.toJson(returnValue);
 
-                // add the url to cache
+                logger.info("Add the url to Redis ");
                 rc.setSwagUrl(seckillSwagId, str_returnValue);
 
                 return returnValue;
             }
+            logger.info("Product is currently not on sale - 没有在秒杀的限时里");
             return new UrlExposer(false, swag.get().getSeckillSwagId());
         }
         return null;
@@ -114,8 +118,10 @@ public class SeckillServiceImpl implements SeckillService {
 
     @Override
     public SeckillExecution executeSeckill(SeckillParameter requestParam) throws Exception {
+
         Long seckillSwagId = requestParam.getSeckillSwagId();
         Long userPhone = requestParam.getUserPhone();
+        logger.info("Executing secKill...seckill_swag_id: "+seckillSwagId+ " userphone: "+userPhone);
         String md5Url = requestParam.getMd5Url();
         BigDecimal dealPrice = requestParam.getDealPrice();
         if (md5Url == null || !md5Url.equalsIgnoreCase(getMd5(seckillSwagId))) {
@@ -126,7 +132,7 @@ public class SeckillServiceImpl implements SeckillService {
         String str_order = rc.getOrder(userPhone, seckillSwagId);
         try{
             if (str_order != null) {
-                logger.info("Seckill order exists in redis. 重复购买。");
+                logger.info("Seckill order already exists in redis. 重复购买。");
                 throw new RepeatkillException("Your order already placed.");
             } else {
 
@@ -136,9 +142,12 @@ public class SeckillServiceImpl implements SeckillService {
                  */
                 SeckillMsgBody msg = new SeckillMsgBody(Calendar.getInstance(), seckillSwagId, userPhone);
                 // // 进入待秒杀队列，进行后续串行操作
+                logger.info("Sending msg to jianku_exchange...msg: "+msg);
                 mqProducer.jianku_send(msg);
                 // 立即返回给客户端，说明秒杀成功了
+                logger.info("Decrementing stock count in redis...");
                 decrementStockCountInRedis(msg,  dealPrice);
+                logger.info("Decrementing stock count in redis...Done");
                 return new SeckillExecution(seckillSwagId, 1,
                         Objects.requireNonNull(SeckillStateEnum.stateOf(1)).getStateInfo());
             }
