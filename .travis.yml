@@ -5,6 +5,7 @@ branches:
   except:
   - nightly
 os: linux
+dist: trusty
 jdk: oraclejdk8
 services:
   - docker
