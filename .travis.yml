@@ -1,0 +1,20 @@
+language: java
+branches:
+  only:
+  - master
+  except:
+  - nightly
+os: linux
+  dist: bionic
+jdk: oraclejdk8
+services:
+  - docker
+script:
+  - mvn test
+  - mvn clean package
+  - ./start.sh
+
+# If the `script` job fails, it will send a failure message to Teams channel
+after_failure:
+  - export TITLE="Travis:$TRAVIS_JOB_ID -- build job is failed"
+  - export TEXT=[datetime]:`date`
