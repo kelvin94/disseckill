@@ -4,7 +4,8 @@ branches:
   - master
   except:
   - nightly
-os: linux
+os:
+  - linux
   dist: bionic
 jdk: oraclejdk8
 services:
