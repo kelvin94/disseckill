@@ -11,7 +11,7 @@ services:
   - docker
 script:
   - mvn test
-  - mvn clean package
+  - ./one_step_mvn_package_docker_build.sh
   - ./start.sh
 
 # If the `script` job fails, it will send a failure message to Teams channel
