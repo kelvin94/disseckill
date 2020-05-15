@@ -11,6 +11,7 @@ import com.jyl.portfolio.commons.exceptions.SeckillCloseException;
 import com.jyl.portfolio.commons.exceptions.SeckillException;
 import com.jyl.portfolio.commons.mqmessage.SeckillMsgBody;
 import com.jyl.portfolio.commons.stateenum.stateenum.SeckillStateEnum;
+import com.jyl.portfolio.order.entity.SeckillOrder;
 import com.jyl.portfolio.order.entity.SeckillSwag;
 import com.jyl.portfolio.order.repository.OrderRepository;
 import com.jyl.portfolio.order.repository.SwagRepository;
@@ -20,7 +21,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
 
@@ -46,20 +46,13 @@ public class SeckillServiceImpl implements SeckillService {
     }
 
     @Override
-    public List<SeckillSwag> findAll() {
-        SeckillMsgBody body = new SeckillMsgBody();
-        body.setMsgId(Calendar.getInstance());
-        body.setUserPhone(123456789L);
-        body.setSeckillSwagId(3L);
-        try {
-            logger.info("sending msg to queue");
-            mqProducer.jianku_send(body);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        logger.info("done msg to queue");
-
+    public List<SeckillSwag> findAll_swags() {
         return swagRepository.findAll();
+    }
+
+    @Override
+    public List<SeckillOrder> findAll_orders() {
+        return orderRepository.findAll();
     }
 
     @Override
@@ -79,7 +72,6 @@ public class SeckillServiceImpl implements SeckillService {
         if(url_in_redis != null) return url_in_redis;
 
 
-
         // not in the cache then continue with the normal postgres call and store the url in redis as a json
         logger.info("Generating url from DB.. seckillSwagId " + seckillSwagId);
 
@@ -94,6 +86,7 @@ public class SeckillServiceImpl implements SeckillService {
             Date endTs = swag.get().getEndTime();
             Date now = new Date();
             int currentStockCount = swag.get().getStockCount();
+
             if (currentStockCount > 0 && now.getTime() > startTs.getTime() && now.getTime() < endTs.getTime()) {
                 logger.info("特价中.. current stock count=" + currentStockCount + " swagID=" + seckillSwagId);
                 UrlExposer returnValue = new UrlExposer(
@@ -172,27 +165,39 @@ public class SeckillServiceImpl implements SeckillService {
 
         logger.info("decrementRedisPGStockCountAndSaveOrder seckillSwagID: " + seckillSwagId + " userPhone: " + userPhone);
 
-        int remainingStockCount = 0;
         long dealStartTs = 0;
         long dealEndTs = 0;
         // update stock count in cache
-        rc.updateStockCount(seckillSwagId, userPhone);
+        Integer remainingStockCount = rc.updateStockCount(seckillSwagId, userPhone);
 
         // save the order to Postgres
         decrementStockCountPostgres(seckillSwagId, userPhone, remainingStockCount, dealPrice);
     }
 
     // updateInventory only interacts to postgres
-    private void decrementStockCountPostgres(long seckillid, long userPhone, int remainStockCount, BigDecimal seckill_price) {
-        logger.info("Updating inventory...");
-        swagRepository.updateStockCount(remainStockCount, seckillid);
-        logger.info("Inserting order...");
-        orderRepository.insertOder(seckillid, seckill_price, userPhone, 1); // state: 1 = 秒杀成功
+    private void decrementStockCountPostgres(long seckillid, long userPhone, Integer remainStockCount, BigDecimal seckill_price) {
+        if(remainStockCount != null) {
+            logger.info("Updating inventory...");
+            swagRepository.updateStockCount(remainStockCount, seckillid);
+            logger.info("Inserting order...");
+            orderRepository.insertOder(seckillid, seckill_price, userPhone, 1); // state: 1 = 秒杀成功
+        }
     }
 
     public void clear() throws Exception {
         rc.clear();
         orderRepository.deleteAll();
+        swagRepository.deleteAll();
+
+        swagRepository.insertDummyData_HuaweiMate10();
+        swagRepository.insertDummyData_iphone();
+        swagRepository.insertDummyData_HuaweiMate20();
+        swagRepository.insertDummyData_HuaweiMate30();
+        swagRepository.insertDummyData_Iphone30();
+
+        orderRepository.insertDummyData_order1();
+        orderRepository.insertDummyData_order2();
+        orderRepository.insertDummyData_order3();
     }
 }
 

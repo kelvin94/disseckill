@@ -1,5 +1,6 @@
 package com.jyl.portfolio.order;
 
+import com.jyl.portfolio.order.entity.SeckillSwag;
 import com.jyl.portfolio.order.repository.SwagRepository;
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.apache.logging.log4j.LogManager;
@@ -27,7 +28,6 @@ public class OrderMainClass {
     public void init(){
         logger.info("[Order] running...");
 
-        repo.findAll();
-        logger.info(repo.findById(1L));
+        logger.info(repo.findAll());
     }
 }

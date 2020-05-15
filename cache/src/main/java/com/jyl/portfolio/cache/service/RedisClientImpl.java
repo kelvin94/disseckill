@@ -98,18 +98,17 @@ public class RedisClientImpl implements RedisClient {
 
 
     @Override
-    public void updateStockCount(Long seckillSwagId, Long userPhone) {
+    public int updateStockCount(Long seckillSwagId, Long userPhone) {
         long dealStartTs = 0;
         long dealEndTs = 0;
-        int remainingStockCount = 0;
+        Integer remainingStockCount = null;
         BigDecimal seckill_price = null;
         try (Jedis jedis = jedisPool.getResource()) {
             // Non-repeated purchase - Update Redis Url with new stockCount
             String seckill_url = jedis.get(GeneralUtil.getUrlRedisKey(seckillSwagId));
             UrlExposer url = gson.fromJson(seckill_url, UrlExposer.class);
             if (url != null && url.getStockCount() > 0) {
-                remainingStockCount = url.getStockCount();
-                remainingStockCount--;
+                remainingStockCount = url.getStockCount()-1;
                 url.setStockCount(remainingStockCount);
                 if (url.getStockCount() <= 0) {
                     throw new SeckillCloseException("Sold out. 卖完啦洗洗睡吧.");
@@ -122,16 +121,12 @@ public class RedisClientImpl implements RedisClient {
                     // Redis: update stockCount...
                     logger.info("updating redis stockCount...");
                     jedis.set(GeneralUtil.getUrlRedisKey(seckillSwagId), gson.toJson(url));
-                    jedis.set(GeneralUtil.getSeckillOrderRedisKey(userPhone, seckillSwagId), "sfasfdsa");// "1" as
-                    // value to indicate this person has placed an order of this product
-                    // If sales is still on-going(here is only double check incase FE exposes the api endpoint for
-                    // seckill_execute method)
-                    //  create a new msg and send to a com.jyl.portfolio.cache.service to update Postgres stockCount and persist the
-                    //  seckillOrder record.
+                    jedis.set(GeneralUtil.getSeckillOrderRedisKey(userPhone, seckillSwagId), "sfasfdsa");// "sfasfdsa" is random value to indicate this person has placed an order of this product
                     logger.info("Redis part done... now call postgres to insert order");
                 }
             }
         }
+        return remainingStockCount;
     }
 
     public void clear() {

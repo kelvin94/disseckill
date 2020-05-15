@@ -7,8 +7,8 @@
         </Console>
 
         <RollingFile name="RollingFile"
-                     fileName="c:/wsl/seckill-mq-log/seckill-mq.log"
-                     filePattern="c:/wsl/seckill-mq-log/$${date:yyyy-MM}/seckill-%d{-dd-MMMM-yyyy}-%i.log">
+                     fileName="/tmp/seckill-mq-log/seckill-mq.log"
+                     filePattern="/tmp/seckill-mq-log/$${date:yyyy-MM}/seckill-%d{-dd-MMMM-yyyy}-%i.log">
             <PatternLayout>
                 <pattern>%d %p %C{1.} [%t] %m%n</pattern>
             </PatternLayout>

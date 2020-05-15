@@ -5,6 +5,7 @@ import com.jyl.portfolio.commons.apiParameter.SeckillParameter;
 import com.jyl.portfolio.commons.mqmessage.SeckillMsgBody;
 import com.jyl.portfolio.order.dto.SeckillExecution;
 import com.jyl.portfolio.commons.dto.UrlExposer;
+import com.jyl.portfolio.order.entity.SeckillOrder;
 import com.jyl.portfolio.order.entity.SeckillSwag;
 
 import java.math.BigDecimal;
@@ -17,7 +18,14 @@ public interface SeckillService {
      *
      * @return
      */
-    List<SeckillSwag> findAll();
+    List<SeckillSwag> findAll_swags();
+
+    /**
+     * 获取所有的已完成订单
+     *
+     * @return
+     */
+    List<SeckillOrder> findAll_orders();
 
     /**
      * 获取某一条商品秒杀信息
