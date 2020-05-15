@@ -15,4 +15,3 @@ before_install:
   - sudo apt-get update
 script:
   - ./one_step_mvn_package_docker_build.sh
-  - ./start.sh
