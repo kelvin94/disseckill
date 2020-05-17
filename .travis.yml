@@ -1,0 +1,23 @@
+language: java
+branches:
+  only:
+  - master
+  except:
+  - nightly
+os: linux
+dist: trusty
+jdk: oraclejdk8
+services:
+- docker
+addons:
+  ssh_known_hosts:
+  - 68.183.200.157 #受信主机，你的Linux服务器ip
+before_install:
+- openssl aes-256-cbc -K $encrypted_04674a2f3de9_key -iv $encrypted_04674a2f3de9_iv
+  -in id_rsa.enc -out ~/.ssh/id_rsa -d
+- sudo apt-get update
+script:
+- "./one_step_mvn_package_docker_build.sh"
+after_success:
+- chmod 600 ~/.ssh/id_rsa   #还是Linux文件权限问题
+- ssh travis@68.183.200.157 -o StrictHostKeyChecking=no 'cd ~/disseckill && git pull && ./one_step_mvn_package_docker_build.sh && docker-compose up'   #使用ssh连接服务器
