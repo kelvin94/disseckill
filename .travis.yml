@@ -20,4 +20,4 @@ script:
 - "./one_step_mvn_package_docker_build.sh"
 after_success:
 - chmod 600 ~/.ssh/id_rsa   #还是Linux文件权限问题
-- ssh root@68.183.200.157 -o StrictHostKeyChecking=no 'cd ~/disseckill && git pull && ./one_step_mvn_package_docker_build.sh'   #使用ssh连接服务器
+- ssh travis@68.183.200.157 -o StrictHostKeyChecking=no 'cd ~/disseckill && git pull && ./one_step_mvn_package_docker_build.sh'   #使用ssh连接服务器
