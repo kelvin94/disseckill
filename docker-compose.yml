@@ -30,7 +30,7 @@ services:
 #        condition: on-failure
 
   cache:
-    image: jylkelvin/disseckill-cache
+    image: jylkelvin/disseckill-cache:latest
     ports:
       - "9095:9095"
     command: ["/cache_start.sh"]
@@ -43,7 +43,7 @@ services:
       - zookeeper
 
   mq:
-    image: jylkelvin/disseckill-mq
+    image: jylkelvin/disseckill-mq:latest
     ports:
       - "9090"
     volumes:
@@ -55,7 +55,7 @@ services:
       - rabbitmq
 
   order:
-    image: jylkelvin/disseckill-order
+    image: jylkelvin/disseckill-order:latest
     ports:
       - "8080:9091"
     volumes:
