@@ -5,8 +5,7 @@
 INSERT INTO  seckill_swag(seckill_swag_id, title, price, seckill_price, stock_count, start_time, end_time, create_time)  VALUES ('1', 'iphoneX', '7788.00', '788.00','100', '2019-09-22 17:22:52', '2029-06-22 17:22:52', '2019-03-22 17:22:52');
 INSERT INTO  seckill_swag(seckill_swag_id, title, price, seckill_price, stock_count, start_time, end_time, create_time)  VALUES ('2', 'Huawei Mate 10', '4199.00', '419.00','50', '2019-09-22 17:22:52', '2029-06-22 17:22:52', '2019-03-22 17:22:52');
 INSERT INTO  seckill_swag(seckill_swag_id, title, price, seckill_price, stock_count, start_time, end_time, create_time)  VALUES ('3', 'Huawei Mate 20', '3199.00', '319.00','50', '2019-09-22 17:22:52', '2029-06-22 17:22:52', '2019-03-22 17:22:52');
-INSERT INTO  seckill_swag(seckill_swag_id, title, price, seckill_price, stock_count, start_time, end_time, create_time)  VALUES ('4', 'Huawei Mate 30', '6199.00', '619.00','50', '2019-05-22 17:22:52', '2019-06-22 17:22:52', '2018-03-22 17:22:52');
-INSERT INTO  seckill_swag(seckill_swag_id, title, price, seckill_price, stock_count, start_time, end_time, create_time)  VALUES ('5', 'Iphone IIX', '6199.00', '619.00','1', '2019-05-22 17:22:52', '2019-06-22 17:22:52', '2018-03-22 17:22:52');
+
 
 -- -- ----------------------------
 -- -- Records of sk_order
