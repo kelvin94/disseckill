@@ -155,13 +155,13 @@ public class SeckillServiceImpl implements SeckillService {
             }
 
         } catch (RepeatkillException ex) {
-            logger.error("userPhone " + userPhone + " try to buy twice this swag id: " + seckillSwagId);
-            throw new RepeatkillException("userPhone " + userPhone + " try to buy twice this product id: " + seckillSwagId);
+            logger.error("userPhone " + userPhone + " try to buy twice this product id: " + seckillSwagId);
+            throw new RepeatkillException("...userPhone " + userPhone + " try to buy twice this product id: " + seckillSwagId);
         } catch (SeckillCloseException ex) {
             throw new SeckillCloseException("user phone " + userPhone);
         } catch (SeckillException ex) {
             // all other exceptions...
-            logger.error("##userPhone: " + userPhone + " " + ex.getMessage());
+            logger.error("userPhone: " + userPhone + " " + ex.getMessage());
             throw new SeckillException(ex.getMessage());
         }
     }
