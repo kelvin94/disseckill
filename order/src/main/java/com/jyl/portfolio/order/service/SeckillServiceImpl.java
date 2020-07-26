@@ -30,6 +30,8 @@ public class SeckillServiceImpl implements SeckillService {
     private final Gson gson;
     private final SwagRepository swagRepository;
     private final OrderRepository orderRepository;
+    //设置盐值字符串，随便定义，用于混淆MD5值
+    private final String salt = "sjajaspu-i-2jrfm;sd";
     @Reference
     MQProducer mqProducer;
     @Reference
@@ -112,7 +114,7 @@ public class SeckillServiceImpl implements SeckillService {
 
 
     private String getMd5(long seckillSwagId) {
-        String base = seckillSwagId + "/" + seckillSwagId;
+        String base = seckillSwagId + "/" + salt;
         return DigestUtils.md5DigestAsHex(base.getBytes());
     }
 
