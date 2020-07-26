@@ -1,4 +1,4 @@
-echo "one step script is udpated"
+echo "one step script is udpated123"
 mvn clean package
 docker container rm disseckill-rabbitmq
 docker container rm disseckill-zookeeper
