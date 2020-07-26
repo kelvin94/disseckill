@@ -1,26 +1,26 @@
 package com.jyl.portfolio.commons.stateenum.stateenum;
 
 public enum SeckillStateEnum {
-    ENQUEUE_PRE_SECKILL(6, "排队中..."),
+    ENQUEUE_PRE_SECKILL(6, "Your order is lining up in the message queue..."),
 
     /**
      * 释放分布式锁失败，秒杀被淘汰
      */
-    DISTLOCK_RELEASE_FAILED(5, "没抢到"),
+    DISTLOCK_RELEASE_FAILED(5, "The deal is sold out. No more in stocks."),
 
     /**
      * 获取分布式锁失败，秒杀被淘汰
      */
-    DISTLOCK_ACQUIRE_FAILED(4, "没抢到"),
+    DISTLOCK_ACQUIRE_FAILED(4, "The deal is sold out. No more in stocks."),
 
     /**
      * Redis秒杀没抢到
      */
-    REDIS_ERROR(3, "没抢到"),
-    SOLD_OUT(2, "已售罄"),
-    SUCCESS(1, "秒杀成功"),
-    END(0, "秒杀结束"),
-    REPEAT_KILL(-1, "重复秒杀"),
+    REDIS_ERROR(3, "You are unable to get the deal, the deal is sold off before your purchase can be recorded to DB."),
+    SOLD_OUT(2, "The deal is sold out. No more in stocks."),
+    SUCCESS(1, "Purchase success."),
+    END(0, "Deal is over"),
+    REPEAT_KILL(-1, "Repeated purchase of same deal is not allowed"),
     /**
      * 运行时才能检测到的所有异常-系统异常
      */
