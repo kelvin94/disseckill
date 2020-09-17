@@ -1,4 +1,6 @@
-Inspired by multiple articles that analzes how Taobao.com, 12306.com and similar websites that handle high volume traffics. This project is mainly for experience how difference  
+The project has been deployed in here: http://portfolio.jyl69.xyz/. Please bear a few moments on waiting, the frontend deployed in Heroku:D
+
+The project is inspired by multiple articles that analzes how Taobao.com, 12306.com and similar websites that handle high volume traffics. This project is mainly for experience how difference  
 architecture(whole project is evolved from monolithic architecture -> microservice architecture) handles difference volume of traffic.
 
 Technology stack:
